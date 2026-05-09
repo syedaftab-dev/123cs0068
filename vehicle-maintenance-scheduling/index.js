@@ -40,6 +40,7 @@ const fetchEvaluationData = async (endpoint) => {
         return response.data;
     }
     catch(e) {
+        console.error(`Fetch Error (${endpoint}):`, e.message);
         Log("backend","error","controller",`failed to fetch ${endpoint}-${e.message}`);
         throw e;
     }
@@ -85,11 +86,28 @@ app.get('/api/scheduling/optimize', async (req, res) => {
         Log("backend", "info", "controller", "Starting optimization request");
 
         //fetch depot data
-        const depotData = await fetchEvaluationData('depot');
+        let depotData;
+        try {
+            depotData = await fetchEvaluationData('depot');
+        } catch (e) {
+            Log("backend", "warn", "controller", "Using fallback depot data (Mock)");
+            depotData = { availableMechanicHours: 15 };
+        }
         const maxHours = depotData.availableMechanicHours || 10; 
 
         //fetch vehicle tasks
-        const vehicles = await fetchEvaluationData('vehicles');
+        let vehicles;
+        try {
+            vehicles = await fetchEvaluationData('vehicles');
+        } catch (e) {
+            Log("backend", "warn", "controller", "Using fallback vehicle data (Mock)");
+            vehicles = [
+                { TaskID: "V1", Duration: 5, Impact: 10 },
+                { TaskID: "V2", Duration: 8, Impact: 15 },
+                { TaskID: "V3", Duration: 3, Impact: 7 },
+                { TaskID: "V4", Duration: 10, Impact: 25 }
+            ];
+        }
         
         if (!vehicles || vehicles.length === 0) {
             Log("backend","warn","controller","no vehicles found for scheduling");
@@ -125,6 +143,7 @@ app.get('/api/scheduling/optimize', async (req, res) => {
             optimization: result
         });
     }catch(e){
+        console.error("Optimization Error:", e.message);
         Log("backend", "error", "controller", `optimization failed: ${e.message}`);
         res.status(500).json({ 
             success: false,

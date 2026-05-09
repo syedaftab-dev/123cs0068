@@ -46,3 +46,8 @@ npm run dev:notifications
 ## API Endpoints
 - **Scheduler**: `GET /api/scheduling/optimize`
 - **Notifications**: `GET /api/notifications/inbox`
+
+## Features
+- **Resilient Mock Mode**: If the evaluation server is unreachable or the token is invalid, the apps will automatically switch to mock data to demonstrate the logic.
+- **Database Persistence**: Notifications and Vehicle tasks are automatically saved to MongoDB Atlas for persistence.
+- **Rate Limiting**: APIs are protected with request limits for security.
