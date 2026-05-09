@@ -7,15 +7,14 @@ if(!TOKEN){
         console.log("Token is missing, please check it once")
 }
 
-const Log=async(stack,level,package_name,message)=>{
-    
-  
+const Log=async(stack,level,packageName,message)=>{
+
 
     try 
     {
         const payload={stack: stack.toLowerCase(),
             level :level.toLowerCase(),
-            package:package_name.toLowerCase(),
+            package:packageName.toLowerCase(),
             message:message.toString()
         };
         await axios.post(`${BASE_URL}/logs`,payload,{
@@ -25,7 +24,7 @@ const Log=async(stack,level,package_name,message)=>{
             }
         });
         console.log(level.toUpperCase());
-        console.log(package_name)
+        console.log(packageName)
         console.log(message);
     }catch(e){
         console.error("Error in Logger.js file",e)
