@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const Log = require('../logging_middleware/logger');
@@ -12,6 +13,14 @@ const PORT = process.env.PORT || 5000;
 // Connect to Database
 connectDB();
 
+// rate limiter-100 requests per 15 minutes
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    message: "too many requests from this ip,please try again after 15 minutes"
+});
+
+app.use(limiter);
 app.use(cors());
 app.use(express.json());
 
@@ -85,6 +94,24 @@ app.get('/api/scheduling/optimize', async (req, res) => {
         if (!vehicles || vehicles.length === 0) {
             Log("backend","warn","controller","no vehicles found for scheduling");
             return res.json({ message: "no tasks available" });
+        }
+
+        // Save to Database stage 2 persistence
+        const Vehicle = require('../models/Vehicle');
+        for (const task of vehicles) {
+            await Vehicle.findOneAndUpdate(
+                { vehicleNo: task.TaskID }, 
+                {
+                    vehicleNo: task.TaskID,
+                    ownerName: "Assigned Depot",
+                    serviceDate: new Date(),
+                    model: "Truck",
+                    tasks: [{ taskName: `Service ${task.TaskID}`, isCompleted: false }],
+                    duration: task.Duration,
+                    impact: task.Impact
+                },
+                { upsert: true, new: true }
+            );
         }
 
         // optimizing using knapsack function we made earlier

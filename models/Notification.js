@@ -5,6 +5,11 @@ const notificationSchema=new mongoose.Schema({
         type: String,
         required: true
     },
+    originalId:{
+        type: String,
+        unique: true,
+        sparse: true
+    },
     title:{
         type: String,
         required: true

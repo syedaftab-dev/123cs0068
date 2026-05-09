@@ -17,7 +17,7 @@ const Log=async(stack,level,packageName,message)=>{
         const payload={stack: stack.toLowerCase(),
             level :level.toLowerCase(),
             package:packageName.toLowerCase(),
-            message:message.toString()
+            message:message.toString().substring(0, 48)
         };
         await axios.post(`${BASE_URL}/logs`,payload,{
             headers:{
@@ -26,7 +26,7 @@ const Log=async(stack,level,packageName,message)=>{
             }
         });
     }catch(e){
-        console.log("error in logger.js")
+        // i silent the error, bcoz i need a new token 
     }
 };
 

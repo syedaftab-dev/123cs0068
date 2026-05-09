@@ -25,7 +25,9 @@ const vehicleSchema= new mongoose.Schema({
     tasks:[{
         taskName: String,
         isCompleted: { type: Boolean, default: false }
-    }]
+    }],
+    duration: Number,
+    impact: Number
 },{
     timestamps: true
 });
