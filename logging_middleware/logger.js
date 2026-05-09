@@ -3,12 +3,14 @@ require('dotenv').config();
 const BASE_URL=process.env.BASE_URL;
 const TOKEN=process.env.TOKEN;
 
-if(!TOKEN){
-        console.log("Token is missing, please check it once")
+if(!TOKEN || !BASE_URL){
+    console.warn("warining token is missing ");
 }
 
 const Log=async(stack,level,packageName,message)=>{
-
+    if (!TOKEN || !BASE_URL) {
+        return;
+    }
 
     try 
     {
@@ -19,15 +21,12 @@ const Log=async(stack,level,packageName,message)=>{
         };
         await axios.post(`${BASE_URL}/logs`,payload,{
             headers:{
-                Authorization:`Bearer${TOKEN}`,
+                Authorization:`Bearer ${TOKEN}`,
                 'Content-Type':'application/json'
             }
         });
-        console.log(level.toUpperCase());
-        console.log(packageName)
-        console.log(message);
     }catch(e){
-        console.error("Error in Logger.js file",e)
+        console.log("error in logger.js")
     }
 };
 
